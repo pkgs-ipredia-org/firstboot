@@ -3,8 +3,8 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 1.115
-Release: 2%{?dist}
+Version: 1.116
+Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
 # within this srpm.
@@ -80,8 +80,10 @@ fi
 /lib/systemd/system/firstboot-graphical.service
 
 %changelog
-* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.115-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+* Tue Feb 15 2011 Martin Gracik <mgracik@redhat.com> 1.116-1
+- systemd's ValidNoProcess renamed to RemainAfterExit
+- Don't run Xorg with -nr option and use vt1
+- Translation updates
 
 * Fri Jan 14 2011 Martin Gracik <mgracik@redhat.com> 1.115-1
 - Don't enable firstboot service on upgrade (#626676)
