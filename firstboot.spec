@@ -4,7 +4,7 @@ Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
 Version: 1.117
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
 # within this srpm.
@@ -30,12 +30,15 @@ Requires(post): chkconfig
 
 Obsoletes: firstboot-tui < 1.90-1
 
+Patch0: quit-plymouth-first-679171.patch
+
 %description
 The firstboot utility runs after installation.  It guides the user through
 a series of steps that allows for easier configuration of the machine.
 
 %prep
 %setup -q
+%patch0 -p1 -b .679171
 
 %build
 
@@ -80,6 +83,9 @@ fi
 /lib/systemd/system/firstboot-graphical.service
 
 %changelog
+* Fri Feb 25 2011 Brian C. Lane <bcl@redhat.com> 1.117-2
+- We need to quit plymouth before running firstboot (#679171)
+
 * Fri Feb 18 2011 Martin Gracik <mgracik@redhat.com> 1.117-1
 - Fix username guessing with unicode chars (#678070)
 
