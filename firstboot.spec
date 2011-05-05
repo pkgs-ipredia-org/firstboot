@@ -3,7 +3,7 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 1.118
+Version: 1.119
 Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
@@ -80,6 +80,9 @@ fi
 /lib/systemd/system/firstboot-graphical.service
 
 %changelog
+* Thu May 05 2011 Martin Gracik <mgracik@redhat.com> 1.119-1
+- Honor the tty set by console kernel argument (#701648)
+
 * Mon May 02 2011 Martin Gracik <mgracik@redhat.com> 1.118-1
 - Translation updates
 - Fix firstboot-text.service (#696320)
