@@ -3,7 +3,7 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 1.116
+Version: 16.0
 Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
@@ -16,15 +16,17 @@ ExclusiveOS: Linux
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: gettext
 BuildRequires: python-devel, python-setuptools-devel
+BuildRequires: systemd-units
 Requires: pygtk2, python
 Requires: setuptool, libuser-python, system-config-users, system-config-date
 Requires: authconfig-gtk, python-meh
 Requires: system-config-keyboard
 Requires: python-ethtool
 Requires: cracklib-python
-Requires: systemd-units
+Requires(post): systemd-units systemd-sysv chkconfig
+Requires(preun): systemd-units
+Requires(postun): systemd-units
 Requires: firstboot(windowmanager)
-Requires(post): chkconfig
 
 %define debug_package %{nil}
 
@@ -45,22 +47,49 @@ make DESTDIR=%{buildroot} SITELIB=%{python_sitelib} install
 rm %{buildroot}/%{_datadir}/firstboot/modules/additional_cds.py*
 %find_lang %{name}
 
+# systemd
+mkdir -p %{buildroot}%{_unitdir}
+install -m644 /lib/systemd/system/firstboot-graphical.service %{buildroot}%{_unitdir}
+install -m644 /lib/systemd/system/firstboot-text.service %{buildroot}%{_unitdir}
+rm -rf %{buildroot}%{_initrddir}
+
 %clean
 rm -rf %{buildroot}
 
 %post
 if [ $1 -ne 2 -a ! -f /etc/sysconfig/firstboot ]; then
-  systemctl enable firstboot-text.service >/dev/null 2>&1 || :
-  systemctl enable firstboot-graphical.service >/dev/null 2>&1 || :
+  platform="$(arch)"
+  if [ "$platform" = "s390" -o "$platform" = "s390x" ]; then
+    echo "RUN_FIRSTBOOT=YES" > /etc/sysconfig/firstboot
+  else
+    /bin/systemctl daemon-reload > /dev/null 2>&1 || :
+  fi
 fi
 
 %preun
 if [ $1 = 0 ]; then
   rm -rf /usr/share/firstboot/*.pyc
   rm -rf /usr/share/firstboot/modules/*.pyc
-  systemctl disable firstboot-graphical.service >/dev/null 2>&1 || :
-  systemctl disable firstboot-text.service >/dev/null 2>&1 || :
+  /bin/systemctl --no-reload firstboot-graphical.service > /dev/null 2>&1 || :
+  /bin/systemctl stop firstboot-graphical.service > /dev/null 2>&1 || :
+  /bin/systemctl --no-reload firstboot-text.service > /dev/null 2>&1 || :
+  /bin/systemctl stop firstboot-text.service > /dev/null 2>&1 || :
 fi
+
+%postun
+/bin/systemctl daemon-reload > /dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    /bin/systemctl try-restart firstboot-graphical.service > /dev/null 2>&1 || :
+    /bin/systemctl try-restart firstboot-text.service > /dev/null 2>&1 || :
+fi
+
+%triggerun -- firstboot < 1.117
+%{_bindir}/systemd-sysv-convert --save firstboot > /dev/null 2>&1 ||:
+/bin/systemctl enable firstboot-graphical.service > /dev/null 2>&1
+/bin/systemctl enable firstboot-text.service > /dev/null 2>&1
+/sbin/chkconfig --del firstboot > /dev/null 2>&1 || :
+/bin/systemctl try-restart firstboot-graphical.service > /dev/null 2>&1 || :
+/bin/systemctl try-restart firstboot-text.service > /dev/null 2>&1 || :
 
 %files -f %{name}.lang
 %defattr(-,root,root,-)
@@ -68,7 +97,6 @@ fi
 %dir %{_datadir}/firstboot/modules/
 %dir %{_datadir}/firstboot/themes/
 %dir %{_datadir}/firstboot/themes/default
-%config %{_initrddir}/firstboot
 %{python_sitelib}/*
 %{_sbindir}/firstboot
 %{_datadir}/firstboot/modules/create_user.py*
@@ -76,10 +104,45 @@ fi
 %{_datadir}/firstboot/modules/eula.py*
 %{_datadir}/firstboot/modules/welcome.py*
 %{_datadir}/firstboot/themes/default/*
-/lib/systemd/system/firstboot-text.service
-/lib/systemd/system/firstboot-graphical.service
+%{_unitdir}/firstboot-graphical.service
+%{_unitdir}/firstboot-text.service
+%ifarch s390 s390x
+%dir %{_sysconfdir}/profile.d
+%{_sysconfdir}/profile.d/firstboot.sh
+%{_sysconfdir}/profile.d/firstboot.csh
+%endif
+
 
 %changelog
+* Tue Jul 19 2011 Martin Gracik <mgracik@redhat.com> 16.0-1
+- Honor the tty set by console kernel argument (#701648)
+- Translation updates
+
+* Tue Jul 19 2011 Martin Gracik <mgracik@redhat.com> 1.118-1
+- Get UID_MIN from /etc/login.defs (#717113)
+- Drop SysV support (Jóhann B. Guðmundsson) (#714668)
+- Fix firstboot-text.service (#696320)
+- Fix firstboot for s390 architecture (#463564)
+- Set the theme directory
+- Changes to systemd service files
+- Save exception to a file
+- Remove init file from the spec
+- New systemd service files
+- Remove old init from setup
+- Remove the old init
+- Use the new loader in moduleset
+- Rewritten the firstboot executable
+- Added reconfig property to module and moduleset
+- Added new constants
+- Rewritten frontend
+- Rewritten loader
+- Update systemd config to prevent tty conflict (#681292)
+- Fix username guessing
+- We need to quit plymouth before running firstboot (#679171)
+
+* Fri Feb 18 2011 Martin Gracik <mgracik@redhat.com> 1.117-1
+- Fix username guessing with unicode chars (#678070)
+
 * Tue Feb 15 2011 Martin Gracik <mgracik@redhat.com> 1.116-1
 - systemd's ValidNoProcess renamed to RemainAfterExit
 - Don't run Xorg with -nr option and use vt1
