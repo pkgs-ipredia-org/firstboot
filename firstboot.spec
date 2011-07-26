@@ -4,7 +4,7 @@ Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
 Version: 16.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
 # within this srpm.
@@ -56,7 +56,8 @@ if [ $1 -ne 2 -a ! -f /etc/sysconfig/firstboot ]; then
   if [ "$platform" = "s390" -o "$platform" = "s390x" ]; then
     echo "RUN_FIRSTBOOT=YES" > /etc/sysconfig/firstboot
   else
-    /bin/systemctl daemon-reload > /dev/null 2>&1 || :
+    systemctl enable firstboot-graphical.service >/dev/null 2>&1 || :
+    systemctl enable firstboot-text.service >/dev/null 2>&1 || :
   fi
 fi
 
@@ -108,6 +109,9 @@ fi
 
 
 %changelog
+* Tue Jul 26 2011 Martin Gracik <mgracik@redhat.com> 16.1-2
+- Enable firstboot after install (#725566)
+
 * Mon Jul 25 2011 Martin Gracik <mgracik@redhat.com> 16.1-1
 - Don't run firstboot if it's set in /etc/sysconfig/firstboot (#723526)
 - Copy skel files even if the home directory exists (#598957)
