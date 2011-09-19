@@ -3,7 +3,7 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 16.3
+Version: 16.4
 Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
@@ -57,7 +57,6 @@ if [ $1 -ne 2 -a ! -f /etc/sysconfig/firstboot ]; then
     echo "RUN_FIRSTBOOT=YES" > /etc/sysconfig/firstboot
   else
     systemctl enable firstboot-graphical.service >/dev/null 2>&1 || :
-    systemctl enable firstboot-text.service >/dev/null 2>&1 || :
   fi
 fi
 
@@ -67,24 +66,19 @@ if [ $1 = 0 ]; then
   rm -rf /usr/share/firstboot/modules/*.pyc
   /bin/systemctl --no-reload firstboot-graphical.service > /dev/null 2>&1 || :
   /bin/systemctl stop firstboot-graphical.service > /dev/null 2>&1 || :
-  /bin/systemctl --no-reload firstboot-text.service > /dev/null 2>&1 || :
-  /bin/systemctl stop firstboot-text.service > /dev/null 2>&1 || :
 fi
 
 %postun
 /bin/systemctl daemon-reload > /dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
     /bin/systemctl try-restart firstboot-graphical.service > /dev/null 2>&1 || :
-    /bin/systemctl try-restart firstboot-text.service > /dev/null 2>&1 || :
 fi
 
 %triggerun -- firstboot < 1.117
 %{_bindir}/systemd-sysv-convert --save firstboot > /dev/null 2>&1 ||:
 /bin/systemctl enable firstboot-graphical.service > /dev/null 2>&1
-/bin/systemctl enable firstboot-text.service > /dev/null 2>&1
 /sbin/chkconfig --del firstboot > /dev/null 2>&1 || :
 /bin/systemctl try-restart firstboot-graphical.service > /dev/null 2>&1 || :
-/bin/systemctl try-restart firstboot-text.service > /dev/null 2>&1 || :
 
 %files -f %{name}.lang
 %defattr(-,root,root,-)
@@ -94,14 +88,12 @@ fi
 %dir %{_datadir}/firstboot/themes/default
 %{python_sitelib}/*
 %{_sbindir}/firstboot
-%{_sbindir}/firstboot-text
 %{_datadir}/firstboot/modules/create_user.py*
 %{_datadir}/firstboot/modules/date.py*
 %{_datadir}/firstboot/modules/eula.py*
 %{_datadir}/firstboot/modules/welcome.py*
 %{_datadir}/firstboot/themes/default/*
 /lib/systemd/system/firstboot-graphical.service
-/lib/systemd/system/firstboot-text.service
 %ifarch s390 s390x
 %dir %{_sysconfdir}/profile.d
 %{_sysconfdir}/profile.d/firstboot.sh
@@ -110,6 +102,10 @@ fi
 
 
 %changelog
+* Mon Sep 19 2011 Martin Gracik <mgracik@redhat.com> 16.4-1
+- Do not run firstboot in text mode automatically (#737118)
+- Clear the user entry text fields (#736193)
+
 * Wed Sep 07 2011 Martin Gracik <mgracik@redhat.com> 16.3-1
 - Add a firstboot-text wrapper (#734306)
 
