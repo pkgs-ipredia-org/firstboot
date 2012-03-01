@@ -3,8 +3,8 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 16.1
-Release: 3%{?dist}
+Version: 17.0
+Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
 # within this srpm.
@@ -18,7 +18,8 @@ BuildRequires: gettext
 BuildRequires: python-devel, python-setuptools-devel
 BuildRequires: systemd-units
 Requires: pygtk2, python
-Requires: setuptool, libuser-python, system-config-users, system-config-date
+Requires: setuptool, libuser-python, system-config-date
+Requires: system-config-users >= 1.2.111-1
 Requires: authconfig-gtk, python-meh
 Requires: system-config-keyboard
 Requires: python-ethtool
@@ -57,7 +58,6 @@ if [ $1 -ne 2 -a ! -f /etc/sysconfig/firstboot ]; then
     echo "RUN_FIRSTBOOT=YES" > /etc/sysconfig/firstboot
   else
     systemctl enable firstboot-graphical.service >/dev/null 2>&1 || :
-    systemctl enable firstboot-text.service >/dev/null 2>&1 || :
   fi
 fi
 
@@ -67,24 +67,19 @@ if [ $1 = 0 ]; then
   rm -rf /usr/share/firstboot/modules/*.pyc
   /bin/systemctl --no-reload firstboot-graphical.service > /dev/null 2>&1 || :
   /bin/systemctl stop firstboot-graphical.service > /dev/null 2>&1 || :
-  /bin/systemctl --no-reload firstboot-text.service > /dev/null 2>&1 || :
-  /bin/systemctl stop firstboot-text.service > /dev/null 2>&1 || :
 fi
 
 %postun
 /bin/systemctl daemon-reload > /dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
     /bin/systemctl try-restart firstboot-graphical.service > /dev/null 2>&1 || :
-    /bin/systemctl try-restart firstboot-text.service > /dev/null 2>&1 || :
 fi
 
 %triggerun -- firstboot < 1.117
 %{_bindir}/systemd-sysv-convert --save firstboot > /dev/null 2>&1 ||:
 /bin/systemctl enable firstboot-graphical.service > /dev/null 2>&1
-/bin/systemctl enable firstboot-text.service > /dev/null 2>&1
 /sbin/chkconfig --del firstboot > /dev/null 2>&1 || :
 /bin/systemctl try-restart firstboot-graphical.service > /dev/null 2>&1 || :
-/bin/systemctl try-restart firstboot-text.service > /dev/null 2>&1 || :
 
 %files -f %{name}.lang
 %defattr(-,root,root,-)
@@ -100,7 +95,6 @@ fi
 %{_datadir}/firstboot/modules/welcome.py*
 %{_datadir}/firstboot/themes/default/*
 /lib/systemd/system/firstboot-graphical.service
-/lib/systemd/system/firstboot-text.service
 %ifarch s390 s390x
 %dir %{_sysconfdir}/profile.d
 %{_sysconfdir}/profile.d/firstboot.sh
@@ -109,8 +103,16 @@ fi
 
 
 %changelog
-* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 16.1-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+* Thu Mar 01 2012 Martin Gracik <mgracik@redhat.com> 17.0-1
+- Disable minimize and maximize buttons on s-c-u (#747829)
+- Change priority of create_user module (#750527)
+- Clear the user entry text fields (#736193)
+- firstboot-text.service no longer exists (#750195)
+- Do not run firstboot in text mode automatically (#737118)
+- Relabel reused home directory (#750090)
+- Do not catch exceptions from system-config-date (#737882)
+- Add a firstboot-text wrapper (#734306)
+- Translation updates (#734305)
 
 * Tue Jul 26 2011 Martin Gracik <mgracik@redhat.com> 16.1-2
 - Enable firstboot after install (#725566)
