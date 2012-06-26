@@ -3,12 +3,12 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 18.0
+Version: 18.1
 Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
 # within this srpm.
-Source0: %{name}-%{version}.tar.bz2
+Source0: %{name}-%{version}.tar.gz
 
 License: GPLv2+
 Group: System Environment/Base
@@ -103,6 +103,9 @@ fi
 
 
 %changelog
+* Tue Jun 26 2012 Martin Gracik <mgracik@redhat.com> 18.1-1
+- Change archive type to gz (mgracik@redhat.com)
+
 * Tue Jun 26 2012 Martin Gracik <mgracik@redhat.com> 18.0-1
 - new package built with tito
 
