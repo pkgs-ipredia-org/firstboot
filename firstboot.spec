@@ -3,8 +3,8 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 18.1
-Release: 2%{?dist}
+Version: 18.2
+Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
 # within this srpm.
@@ -28,6 +28,7 @@ Requires(post): systemd-units systemd-sysv chkconfig
 Requires(preun): systemd-units
 Requires(postun): systemd-units
 Requires: firstboot(windowmanager)
+Requires: libreport-python
 
 %define debug_package %{nil}
 
@@ -103,8 +104,11 @@ fi
 
 
 %changelog
-* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 18.1-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+* Thu Aug 23 2012 Brian C. Lane <bcl@redhat.com> 18.2-1
+- Fix traceback when /etc/sysconfig/i18n doesn't exist (#849967)
+  (vpodzime@redhat.com)
+- Don't crash firstboot with python-meh's Gtk3 UI (#849118)
+  (vpodzime@redhat.com)
 
 * Tue Jun 26 2012 Martin Gracik <mgracik@redhat.com> 18.1-1
 - Change archive type to gz (mgracik@redhat.com)
