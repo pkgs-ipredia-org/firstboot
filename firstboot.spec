@@ -4,11 +4,13 @@ Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
 Version: 18.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
 # within this srpm.
 Source0: %{name}-%{version}.tar.gz
+# Adjust prefdm.service to display-manager.service in systemd service
+Patch0: firstboot-18.2-dm.patch
 
 License: GPLv2+
 Group: System Environment/Base
@@ -40,6 +42,7 @@ a series of steps that allows for easier configuration of the machine.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 
@@ -104,6 +107,10 @@ fi
 
 
 %changelog
+* Fri Aug 31 2012 Adam Williamson <awilliam@redhat.com> 18.2-2
+- patch systemd service to refer to display-manager.service not
+  prefdm.service (will be 'upstreamed' shortly)
+
 * Thu Aug 23 2012 Brian C. Lane <bcl@redhat.com> 18.2-1
 - Fix traceback when /etc/sysconfig/i18n doesn't exist (#849967)
   (vpodzime@redhat.com)
