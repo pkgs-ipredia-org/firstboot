@@ -3,14 +3,12 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 18.2
-Release: 2%{?dist}
+Version: 18.3
+Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
 # within this srpm.
 Source0: %{name}-%{version}.tar.gz
-# Adjust prefdm.service to display-manager.service in systemd service
-Patch0: firstboot-18.2-dm.patch
 
 License: GPLv2+
 Group: System Environment/Base
@@ -42,7 +40,6 @@ a series of steps that allows for easier configuration of the machine.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 
@@ -107,6 +104,11 @@ fi
 
 
 %changelog
+* Wed Sep 12 2012 Martin Sivak <msivak@redhat.com> 18.3-1
+- patch systemd service to refer to display-manager.service
+  not prefdm.service (awilliam@redhat.com)
+- Make the created user administrator by default (#856194)
+
 * Fri Aug 31 2012 Adam Williamson <awilliam@redhat.com> 18.2-2
 - patch systemd service to refer to display-manager.service not
   prefdm.service (will be 'upstreamed' shortly)
