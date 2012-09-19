@@ -3,7 +3,7 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 18.3
+Version: 18.4
 Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
@@ -58,7 +58,7 @@ if [ $1 -ne 2 -a ! -f /etc/sysconfig/firstboot ]; then
   if [ "$platform" = "s390" -o "$platform" = "s390x" ]; then
     echo "RUN_FIRSTBOOT=YES" > /etc/sysconfig/firstboot
   else
-    systemctl enable firstboot-graphical.service >/dev/null 2>&1 || :
+    %systemd_post firstboot-graphical.service
   fi
 fi
 
@@ -66,15 +66,11 @@ fi
 if [ $1 = 0 ]; then
   rm -rf /usr/share/firstboot/*.pyc
   rm -rf /usr/share/firstboot/modules/*.pyc
-  /bin/systemctl --no-reload firstboot-graphical.service > /dev/null 2>&1 || :
-  /bin/systemctl stop firstboot-graphical.service > /dev/null 2>&1 || :
 fi
+%systemd_preun firstboot-graphical.service
 
 %postun
-/bin/systemctl daemon-reload > /dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    /bin/systemctl try-restart firstboot-graphical.service > /dev/null 2>&1 || :
-fi
+%systemd_postun_with_restart firstboot-graphical.service
 
 %triggerun -- firstboot < 1.117
 %{_bindir}/systemd-sysv-convert --save firstboot > /dev/null 2>&1 ||:
@@ -104,14 +100,15 @@ fi
 
 
 %changelog
+* Wed Sep 19 2012 Martin Sivak <msivak@redhat.com> 18.4-1
+- Scriptlets replaced with new systemd macros (#850112) (vpavlin@redhat.com)
+- When creating first user in system with no root, force the user to be admin
+  (#856194) (msivak@redhat.com)
+
 * Wed Sep 12 2012 Martin Sivak <msivak@redhat.com> 18.3-1
 - patch systemd service to refer to display-manager.service
   not prefdm.service (awilliam@redhat.com)
 - Make the created user administrator by default (#856194)
-
-* Fri Aug 31 2012 Adam Williamson <awilliam@redhat.com> 18.2-2
-- patch systemd service to refer to display-manager.service not
-  prefdm.service (will be 'upstreamed' shortly)
 
 * Thu Aug 23 2012 Brian C. Lane <bcl@redhat.com> 18.2-1
 - Fix traceback when /etc/sysconfig/i18n doesn't exist (#849967)
