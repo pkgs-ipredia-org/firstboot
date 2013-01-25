@@ -3,14 +3,12 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 18.6
-Release: 2%{?dist}
+Version: 18.7
+Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
 # within this srpm.
 Source0: %{name}-%{version}.tar.gz
-# Don't try to read and apply keyboard config
-Patch0: firstboot-18.6-kbd.patch
 
 License: GPLv2+
 Group: System Environment/Base
@@ -42,7 +40,6 @@ a series of steps that allows for easier configuration of the machine.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 
@@ -94,7 +91,7 @@ fi
 %{_datadir}/firstboot/modules/eula.py*
 %{_datadir}/firstboot/modules/welcome.py*
 %{_datadir}/firstboot/themes/default/*
-/lib/systemd/system/firstboot-graphical.service
+%{_unitdir}/firstboot-graphical.service
 %ifarch s390 s390x
 %dir %{_sysconfdir}/profile.d
 %{_sysconfdir}/profile.d/firstboot.sh
@@ -103,8 +100,8 @@ fi
 
 
 %changelog
-* Fri Jan 04 2013 Adam Williamson <awilliam@redhat.com> - 18.6-2
-- kbd.patch: don't try and read and apply keyboard config (#892097)
+* Fri Jan 25 2013 Martin Sivak <msivak@redhat.com> 18.7-1
+- Use proper systemd macro for unit files location (#883995) (msivak@redhat.com)
 
 * Tue Nov 06 2012 Martin Sivak <msivak@redhat.com> 18.6-1
 - Add support for MATE's window manager (#873342) (msivak@redhat.com)
