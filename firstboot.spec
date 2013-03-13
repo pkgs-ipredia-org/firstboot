@@ -3,7 +3,7 @@
 Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
-Version: 18.7
+Version: 19.2
 Release: 1%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
@@ -18,12 +18,7 @@ BuildRequires: gettext
 BuildRequires: python-devel, python-setuptools-devel
 BuildRequires: systemd-units
 Requires: pygtk2, python
-Requires: setuptool, libuser-python, system-config-date
-Requires: system-config-users >= 1.2.111-1
-Requires: authconfig-gtk, python-meh
-Requires: system-config-keyboard
-Requires: python-ethtool
-Requires: python-pwquality
+Requires: python-meh
 Requires(post): systemd-units systemd-sysv chkconfig
 Requires(preun): systemd-units
 Requires(postun): systemd-units
@@ -46,7 +41,6 @@ a series of steps that allows for easier configuration of the machine.
 %install
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} SITELIB=%{python_sitelib} install
-rm %{buildroot}/%{_datadir}/firstboot/modules/additional_cds.py*
 %find_lang %{name}
 
 %clean
@@ -86,10 +80,6 @@ fi
 %dir %{_datadir}/firstboot/themes/default
 %{python_sitelib}/*
 %{_sbindir}/firstboot
-%{_datadir}/firstboot/modules/create_user.py*
-%{_datadir}/firstboot/modules/date.py*
-%{_datadir}/firstboot/modules/eula.py*
-%{_datadir}/firstboot/modules/welcome.py*
 %{_datadir}/firstboot/themes/default/*
 %{_unitdir}/firstboot-graphical.service
 %ifarch s390 s390x
@@ -100,6 +90,14 @@ fi
 
 
 %changelog
+* Wed Mar 13 2013 Martin Sivak <msivak@redhat.com> 19.2-1
+- Fix a typo in variable name (sherr@redhat.com)
+- Fix one two year old refactoring leftover.. (msivak@redhat.com)
+
+* Thu Feb 28 2013 Martin Sivak <msivak@redhat.com> 19.1-1
+- Remove all modules that are going to be provided by anaconda and initial-
+  setup (msivak@redhat.com)
+
 * Fri Jan 25 2013 Martin Sivak <msivak@redhat.com> 18.7-1
 - Use proper systemd macro for unit files location (#883995) (msivak@redhat.com)
 
