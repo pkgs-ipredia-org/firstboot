@@ -4,7 +4,7 @@ Summary: Initial system configuration utility
 Name: firstboot
 URL: http://fedoraproject.org/wiki/FirstBoot
 Version: 19.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 # This is a Red Hat maintained package which is specific to
 # our distribution.  Thus the source is only available from
 # within this srpm.
@@ -90,6 +90,9 @@ fi
 
 
 %changelog
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 19.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
 * Wed Mar 13 2013 Martin Sivak <msivak@redhat.com> 19.2-1
 - Fix a typo in variable name (sherr@redhat.com)
 - Fix one two year old refactoring leftover.. (msivak@redhat.com)
