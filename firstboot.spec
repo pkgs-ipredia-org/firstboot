@@ -10,6 +10,8 @@ Release: 1%{?dist}
 # within this srpm.
 Source0: %{name}-%{version}.tar.bz2
 
+Patch20: firstboot-17.3-iprediaos-text.patch
+
 License: GPLv2+
 Group: System Environment/Base
 ExclusiveOS: Linux
@@ -39,6 +41,8 @@ a series of steps that allows for easier configuration of the machine.
 
 %prep
 %setup -q
+
+%patch20 -p1 -b .iprediaos-text
 
 %build
 
